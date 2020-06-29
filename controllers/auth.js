@@ -1,10 +1,14 @@
 const User = require('../model/user');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-// const sendgridTransport = require('nodemailer-sendgrid-transport');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 const { validationResult } = require('express-validator/check');
 
-// const transporter = nodemailer.createTransport(sendgridTransport());
+const transporter = nodemailer.createTransport(sendgridTransport({
+    auth: {
+        api_key: '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'
+    }
+}));
 
 exports.getLogin = (req, res, next) => {
     let message = req.flash('error');
@@ -17,7 +21,12 @@ exports.getLogin = (req, res, next) => {
     {
         pageTitle: 'Login',
         pageURL: '/login',
-        errorMessage: message
+        errorMessage: message,
+        isError: [],
+        oldValue: {
+            email: '',
+            password: ''
+        }
     });
 };
 
@@ -30,15 +39,28 @@ exports.postLogin = (req, res, next) => {
         return res.status(422).render('auth/login', {
             pageTitle: 'Login',
             pageURL: '/login',
-            errorMessage: error.array()[0].msg
+            errorMessage: error.array()[0].msg,
+            isError: error.array(),
+            oldValue: {
+                email: email,
+                password: password
+            }
         });
     }
 
     User.findOne({ email: email })
         .then(user => {
             if(!user) {
-                req.flash('error', 'Invalid Email!!');
-                return res.redirect('/login');
+                return res.status(422).render('auth/login', {
+                    pageTitle: 'Login',
+                    pageURL: '/login',
+                    errorMessage: 'This Email is not registerd!!',
+                    isError: [{ param: 'email' }],
+                    oldValue: {
+                        email: email,
+                        password: password
+                    }
+                });
             }
             bcrypt.compare(password, user.password)
             .then(matched => {
@@ -49,8 +71,16 @@ exports.postLogin = (req, res, next) => {
                             res.redirect('/');
                         });
                 }
-                req.flash('error', 'Password doesn\'t match!!');
-                res.redirect('/login');
+                return res.status(422).render('auth/login', {
+                    pageTitle: 'Login',
+                    pageURL: '/login',
+                    errorMessage: 'Wrong Password!!',
+                    isError: [{ param: 'password' }],
+                    oldValue: {
+                        email: email,
+                        password: password
+                    }
+                });
             })
             .catch(err => {
                 console.log(err);
@@ -113,7 +143,35 @@ exports.postSignup = (req, res, next) => {
         });
         user.save()
         .then(result => {
-            return res.redirect('/login');
-        });
+            res.redirect('/login');
+            return transporter.sendMail({
+                to: email,
+                from: 'mamunwitchbug@gmail.com',
+                subject: 'Registration Completed',
+                html: '<h1>Your Registration has been completed. Welcome to Nodejs Shop</h1>'
+            });
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+};
+
+exports.resetPassword = (req, res, next) => {
+    let message = req.flash('error');
+    if(message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
+    res.render('auth/reset',
+    {
+        pageTitle: 'Reset Password',
+        pageURL: '/reset',
+        errorMessage: message,
+        isError: [],
+        oldValue: {
+            email: '',
+            password: ''
+        }
     });
 };

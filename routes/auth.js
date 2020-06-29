@@ -14,10 +14,12 @@ router.post('/login',
     [
         body('email')
             .isEmail()
-            .withMessage('Please Enter a valid Email.'),
+            .withMessage('Please Enter a valid Email.')
+            .normalizeEmail(),
         body('password', 'Password must be at least 5 alphanumeric character.')
             .isLength({ min: 5 })
             .isAlphanumeric()
+            .trim()
     ],
     authController.postLogin
 );
@@ -33,19 +35,24 @@ router.post('/signup',
                         return Promise.reject('This email has been already Registerd. Please try another email address.');
                     }
                 });
-        }),
+        })
+        .normalizeEmail(),
         body('password', 'Please enter at least 6 alphanumeric value!!')
         .isLength({ min: 5 })
-        .isAlphanumeric(),
+        .isAlphanumeric()
+        .trim(),
         body('confirmPassword').custom((value, { req }) => {
             if(value !== req.body.password) {
                 throw new Error('Password dosn\'t match');
             }
             return true;
         })
+        .trim()
     ],
     authController.postSignup
 );
+
+router.get('/reset', authController.resetPassword);
 
 module.exports = router;
 

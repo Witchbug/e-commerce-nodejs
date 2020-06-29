@@ -21,21 +21,8 @@
                     value="<%= oldValue.email%>"
                 >
             </div>
-            <div class="form-control">
-                <label for="password">Password</label>
-                <input
-                    class="<%= isError.find(e => e.param === 'password') ? 'invalid' : '' %>"
-                    type="password"
-                    name="password" 
-                    id="password"
-                    value="<%= oldValue.password%>"
-                >
-            </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken%>">
-            <button class="btn" type="submit">Login</button>
+            <button class="btn" type="submit">Reset Password</button>
         </form>
-        <div class="centered">
-            <a href="/reset">Reset Password</a>
-        </div>
     </main>
 <%- include('../includes/end.ejs') %>

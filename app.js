@@ -9,7 +9,7 @@ const csrf = require('csurf');
 const flash = require('connect-flash');
 
 // constant values
-const MongoDB_URI = 'mongodb+srv://username:pass@cluster0-ri30u.gcp.mongodb.net/dbname?retryWrites=true&w=majority';
+const MongoDB_URI = 'mongodb://root:root@cluster0-shard-00-00-ri30u.gcp.mongodb.net:27017,cluster0-shard-00-01-ri30u.gcp.mongodb.net:27017,cluster0-shard-00-02-ri30u.gcp.mongodb.net:27017/shopMongoose?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority';
 const csrfProtection = csrf();
 
 const app = express();
