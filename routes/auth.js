@@ -52,7 +52,7 @@ router.post('/signup',
     authController.postSignup
 );
 
-router.get('/reset', authController.resetPassword);
+router.get('/reset', authController.getReset);
 
 module.exports = router;
 

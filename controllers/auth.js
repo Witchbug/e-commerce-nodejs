@@ -156,7 +156,7 @@ exports.postSignup = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
-exports.resetPassword = (req, res, next) => {
+exports.getReset = (req, res, next) => {
     let message = req.flash('error');
     if(message.length > 0) {
         message = message[0];
